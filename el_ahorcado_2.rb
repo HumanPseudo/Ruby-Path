@@ -10,7 +10,10 @@ palabra_oculta = ['_'] * palabra_seleccionada.length # La palabra oculta empieza
 
 # Definir la clase Juego
 class Juego
-  def self.iniciar(palabra_seleccionada, intentos, letras_adivinadas, palabra_oculta)
+  def self.iniciar(palabra_seleccionada, 
+    intentos, 
+    letras_adivinadas, 
+    palabra_oculta)
     loop do
       # Mostrar estado actual
       puts "\nPalabra: #{palabra_oculta.join(' ')}"
