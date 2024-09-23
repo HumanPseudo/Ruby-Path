@@ -10,54 +10,71 @@ palabra_oculta = ['_'] * palabra_seleccionada.length # La palabra oculta empieza
 
 # Definir la clase Juego
 class Juego
-  def self.iniciar(palabra_seleccionada, 
-    intentos, 
-    letras_adivinadas, 
-    palabra_oculta)
+  def self.iniciar(palabra_seleccionada, intentos, letras_adivinadas, palabra_oculta)
     loop do
-      # Mostrar estado actual
-      puts "\nPalabra: #{palabra_oculta.join(' ')}"
-      puts "Intentos restantes: #{intentos}"
-      puts "Letras adivinadas: #{letras_adivinadas.join(', ')}"
-      puts "La palabra a adivinar tiene #{palabra_seleccionada.length} letras."
+      mostrar_estado(palabra_oculta, intentos, letras_adivinadas, palabra_seleccionada)
+      letra = pedir_letra(letras_adivinadas)
 
-      # Pedir al jugador que adivine una letra
-      print 'Adivina una letra: '
-      letra = gets.chomp.downcase
+      procesar_letra(letra, palabra_seleccionada, palabra_oculta, letras_adivinadas)
 
-      # Verificar si ya se adivinó esa letra
-      if letras_adivinadas.include?(letra)
-        puts "Ya adivinaste la letra '#{letra}'. Intenta con otra."
-        next
-      end
+      intentos = actualizar_intentos(letra, palabra_seleccionada, intentos)
 
-      # Añadir la letra a las letras adivinadas
-      letras_adivinadas << letra
+      break if juego_terminado?(palabra_oculta, palabra_seleccionada, intentos)
+    end
+  end
 
-      # Verificar si la letra está en la palabra
-      if palabra_seleccionada.include?(letra)
-        # Reemplazar los guiones bajos en las posiciones correctas
-        palabra_seleccionada.each_with_index do |letra_palabra, indice|
-          palabra_oculta[indice] = letra if letra_palabra == letra
-        end
-        puts "¡Bien! La letra '#{letra}' está en la palabra."
-      else
-        intentos -= 1
-        puts "La letra '#{letra}' no está en la palabra."
-      end
+  def self.mostrar_estado(palabra_oculta, intentos, letras_adivinadas, palabra_seleccionada)
+    puts "\nPalabra: #{palabra_oculta.join(' ')}"
+    puts "Intentos restantes: #{intentos}"
+    puts "Letras adivinadas: #{letras_adivinadas.join(', ')}"
+    puts "La palabra a adivinar tiene #{palabra_seleccionada.length} letras."
+  end
 
-      # Verificar si se ganó el juego
-      if palabra_oculta == palabra_seleccionada
-        puts "¡Felicidades! Adivinaste la palabra: #{palabra_oculta.join}"
-        break
-      end
+  def self.pedir_letra(letras_adivinadas)
+    print 'Adivina una letra: '
+    letra = gets.chomp.downcase
+    validar_letra_repetida(letra, letras_adivinadas)
+  end
 
-      # Verificar si se quedaron sin intentos
-      next unless intentos.zero?
+  def self.validar_letra_repetida(letra, letras_adivinadas)
+    if letras_adivinadas.include?(letra)
+      puts "Ya adivinaste la letra '#{letra}'. Intenta con otra."
+      pedir_letra(letras_adivinadas)
+    else
+      letra
+    end
+  end
 
-      puts '¡Lo siento! Te quedaste sin intentos.'
-      puts " La palabra era: #{palabra_seleccionada.join}"
-      break
+  def self.procesar_letra(letra, palabra_seleccionada, palabra_oculta, letras_adivinadas)
+    letras_adivinadas << letra
+    if palabra_seleccionada.include?(letra)
+      reemplazar_guiones(letra, palabra_seleccionada, palabra_oculta)
+      puts "¡Bien! La letra '#{letra}' está en la palabra."
+    else
+      puts "La letra '#{letra}' no está en la palabra."
+    end
+  end
+
+  def self.reemplazar_guiones(letra, palabra_seleccionada, palabra_oculta)
+    palabra_seleccionada.each_with_index do |letra_palabra, indice|
+      palabra_oculta[indice] = letra if letra_palabra == letra
+    end
+  end
+
+  def self.actualizar_intentos(letra, palabra_seleccionada, intentos)
+    intentos -= 1 unless palabra_seleccionada.include?(letra)
+    intentos
+  end
+
+  def self.juego_terminado?(palabra_oculta, palabra_seleccionada, intentos)
+    if palabra_oculta == palabra_seleccionada
+      puts "¡Felicidades! Adivinaste la palabra: #{palabra_oculta.join}"
+      true
+    elsif intentos.zero?
+      puts "¡Lo siento! Te quedaste sin intentos. La palabra era: #{palabra_seleccionada.join}"
+      true
+    else
+      false
     end
   end
 end
